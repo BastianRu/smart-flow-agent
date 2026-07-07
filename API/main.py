@@ -1,10 +1,15 @@
+import os
 import time
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 from core.agent import init_building_agent, query_building_agent
 from core.session_context import get_tool_trace, reset_session
+
+API_BEARER_TOKEN = os.getenv("API_BEARER_TOKEN", "secret-demo-token")
+security = HTTPBearer()
 
 app = FastAPI(
     title="SmartFlow Demo Agent API v1.0.0",
@@ -34,8 +39,16 @@ def startup_event():
     init_building_agent()
 
 
+def validate_token(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> str:
+    if credentials.scheme.lower() != "bearer" or credentials.credentials != API_BEARER_TOKEN:
+        raise HTTPException(status_code=401, detail="Invalid or missing bearer token")
+    return credentials.credentials
+
+
 @app.post("/agent/query", response_model=AgentResponse)
-def query_agent(request: AgentRequest):
+def query_agent(request: AgentRequest, token: str = Depends(validate_token)):
     try:
         start = time.perf_counter()
         agent_response = query_building_agent(request.message)
@@ -60,7 +73,7 @@ def query_agent(request: AgentRequest):
 
 
 @app.post("/agent/reset", response_model=ResetResponse)
-def reset_agent():
+def reset_agent(token: str = Depends(validate_token)):
     reset_session()
     init_building_agent()
     return ResetResponse(
@@ -70,5 +83,5 @@ def reset_agent():
 
 
 @app.get("/agent/tool-trace")
-def tool_trace():
+def tool_trace(token: str = Depends(validate_token)):
     return {"tool_trace": get_tool_trace(), "length": len(get_tool_trace())}
