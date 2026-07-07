@@ -21,6 +21,7 @@ def main():
         end_datetime=now + timedelta(hours=1),
         description='Evento creado para probar la integración con Google Calendar.',
         location='Online',
+        attendees=['mexhasgod@gmail.com']
     )
     print('Evento creado:')
     print(f"ID: {created.get('id')}")

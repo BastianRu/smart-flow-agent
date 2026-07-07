@@ -106,7 +106,7 @@ def schedule_appointment( appointment: dict ):
   {
     "id": "a1",
     "customer_name": "Sebastian Ruiz",
-    "customer_phone": "315 516 6455",
+    "customer_email": "sebasr@gmail.com",
     "date": "15/07/2026" (MUST MATCH EXACTLY THIS FORMAT),
     "hour": "9:00 AM",
     "project_id": "p1",
@@ -116,22 +116,32 @@ def schedule_appointment( appointment: dict ):
   """
   created_raw = create_event(
     summary=f"{appointment['project_name']} | {appointment['customer_name']} | {appointment['hour']}",
-      start_datetime = datetime.strptime(f"{appointment['date']} {appointment['hour']}", "%d/%m/%Y %I:%M %p"),
-    description=f"{appointment['description']}"
+    start_datetime=datetime.strptime(f"{appointment['date']} {appointment['hour']}", "%d/%m/%Y %I:%M %p"),
+    description=f"{appointment['description']}",
+    attendees=[appointment['customer_email']],
   )
-  #appointment["id"] = f"p{len(mock_appointments) + 1}"
-  #mock_appointments.append(appointment)
+
+  if isinstance(created_raw, dict) and created_raw.get('error'):
+    result = {
+      'error': created_raw['error'],
+      'message': created_raw.get('message'),
+      'invalid_emails': created_raw.get('invalid_emails'),
+      'status_code': created_raw.get('status_code'),
+      'requested_appointment': appointment,
+    }
+    add_tool_trace('schedule_appointment', input_data=appointment, output_data=result)
+    return result
 
   created = {
-    "id": created_raw.get('id'),
-    "status": created_raw.get("status"),
-    "summary": created_raw.get('summary'),
-    "date": created_raw['start'].get('dateTime'),
-    "hour": appointment["hour"],
-    "customer_name": appointment["customer_name"],
-    "customer_phone": appointment["customer_phone"]
+    'id': created_raw.get('id'),
+    'status': created_raw.get('status'),
+    'summary': created_raw.get('summary'),
+    'date': created_raw['start'].get('dateTime'),
+    'hour': appointment['hour'],
+    'customer_name': appointment['customer_name'],
+    'customer_phone': appointment['customer_phone'],
   }
-  add_tool_trace("schedule_appointment", input_data=appointment, output_data=created)
+  add_tool_trace('schedule_appointment', input_data=appointment, output_data=created)
   return created
 
 
