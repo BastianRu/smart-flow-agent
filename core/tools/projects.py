@@ -139,7 +139,6 @@ def schedule_appointment( appointment: dict ):
     'date': created_raw['start'].get('dateTime'),
     'hour': appointment['hour'],
     'customer_name': appointment['customer_name'],
-    'customer_phone': appointment['customer_phone'],
   }
   add_tool_trace('schedule_appointment', input_data=appointment, output_data=created)
   return created
@@ -147,14 +146,15 @@ def schedule_appointment( appointment: dict ):
 
 if __name__ == "__main__":
   created = schedule_appointment({
-    "id": "a123",
-    "customer_name": "Sebastian Ruiz",
-    "customer_phone": "315 516 6455",
-    "date": "15/09/2026",
-    "hour": "9:00 AM",
-    "project_id": "p123",
-    "project_name": "Proyecto de prueba",
-    "description": "Proyecto de Prueba."
-  })
+        "date": "8/07/2026",
+        "hour": "8:00 AM",
+        "project_id": "p3",
+        "customer_email": "mexhasgod@gmail.com",
+        "description": "Agendamiento de cita para cliente en el proyecto Llanos de Calibio.",
+        "customer_name": "Juan",
+        "project_name": "Llanos de Calibio"
+      })
   print(created)
+  print(get_appointments())
+
 
