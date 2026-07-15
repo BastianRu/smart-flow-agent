@@ -1,5 +1,7 @@
 from strands import tool
-from core.config.calendar_helpers import create_event, list_upcoming_events
+from core.config.google_cloud.calendar_helpers import create_event, list_upcoming_events
+from core.config.google_cloud.sheets_helpers import append_rows
+from core.config.google_cloud.gmail_helpers import send_email
 from core.session_context import add_tool_trace
 from datetime import datetime
 
@@ -102,17 +104,15 @@ def get_appointments():
 
 @tool
 def schedule_appointment( appointment: dict ):
-  """Schedules a new appointment. Here's an example:
-  {
-    "id": "a1",
-    "customer_name": "Sebastian Ruiz",
-    "customer_email": "sebasr@gmail.com",
-    "date": "15/07/2026" (MUST MATCH EXACTLY THIS FORMAT),
-    "hour": "9:00 AM",
-    "project_id": "p1",
-    "project_name": "Reserva del Valle",
-    "description": "Agendamiento de cita para cliente en el proyecto Reserva del Valle."
-  }
+  """Schedules a new appointment:
+  
+    Required fields in appointment dict:
+    - customer_name: str
+    - customer_email: str (must be valid)
+    - date: str (format: DD/MM/YYYY)
+    - hour: str (format: H:MM AM/PM)
+    - project_name: str
+    - description: str
   """
   created_raw = create_event(
     summary=f"{appointment['project_name']} | {appointment['customer_name']} | {appointment['hour']}",
@@ -141,6 +141,29 @@ def schedule_appointment( appointment: dict ):
     'customer_name': appointment['customer_name'],
   }
   add_tool_trace('schedule_appointment', input_data=appointment, output_data=created)
+
+  #Add row in the google sheet   
+  rows = [[appointment['customer_name'], 
+           appointment['customer_email'], 
+           appointment['project_name'], 
+           appointment['date'],
+           appointment['hour'],
+           appointment['description'] ]]
+  append_rows("1ZnMWdYbBA3H2ROcg3sYMAIYfuWDDdisxzFBWJcErVy8", "hoja1!A3", rows)
+
+  #Send and email to the seller 
+  send_email(appointment['customer_email'], 
+             f'Nueva cita agendada | {appointment["project_name"]} | {appointment["date"]} a las {appointment["hour"]}',
+             f"""Se ha solicitado una cita para uno de los proyectos. Informacion del cliente:
+             
+  Nombre del cliente: {appointment['customer_name']}  
+  Correo del cliente: {appointment['customer_email']}
+  Proyecto de interés: {appointment['project_name']}
+  Fecha de la cita: {appointment['date']}
+  Hora de la cita: {appointment['hour']}
+
+                """)
+
   return created
 
 
@@ -151,7 +174,7 @@ if __name__ == "__main__":
         "project_id": "p3",
         "customer_email": "mexhasgod@gmail.com",
         "description": "Agendamiento de cita para cliente en el proyecto Llanos de Calibio.",
-        "customer_name": "Juan",
+        "customer_name": "Juan Munoz",
         "project_name": "Llanos de Calibio"
       })
   print(created)

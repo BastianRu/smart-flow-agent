@@ -89,6 +89,8 @@ Tienes acceso a las siguientes herramientas para interactuar con sistemas extern
    - **Descripción:** Reserva una cita en el Google Calendar de la constructora y envía un correo de confirmación/recordatorio automático al cliente.
    - **Cuándo usarla:** Solo cuando el usuario haya aceptado explícitamente agendar la cita y te proporcione la fecha, hora, su nombre y su correo. No es necesario el numero de telefono
    - Anotacion: "Si devuelve algun campo nulo o con vacios, indicar que en este momento no es posible hacer el agendamiento". (Fecha actual: 2026)
+   Esta herramienta envia un correo de recordatorio al email proporcionado, puede tardar un poco, (Nunca mas de 10s).
+   No envia enlaces de reunion, porque la reunion es presencial
 
 3. `def get_appointments():`
     - **Descripción:** Devuelve todas las citas programadas hasta el momento por si se requieren consultar
@@ -206,7 +208,7 @@ if __name__ == "__main__":
 
     #4
     s = time.perf_counter()
-    response = building_agent("Me llamo Carlos Vallarta, la quiero el 17 de julio a las 4 PM. Mi numero es 318 521 3803")
+    response = building_agent("Me llamo Juan Ceron, la quiero el 16 de julio a las 5 pm. Mi correo es juanmunozr@unicauca.edu.co")
     elapsed = time.perf_counter() - s
 
     print(str(response))

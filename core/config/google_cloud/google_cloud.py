@@ -11,7 +11,11 @@ load_dotenv()
 # Path to the .env file (used to persist refreshed tokens)
 ENV_PATH = find_dotenv() or '.env'
 
-SCOPES = ['https://www.googleapis.com/auth/calendar']
+DEFAULT_SCOPES = [
+    'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/gmail.send',
+]
 
 
 def _parse_expiry(token_expiry: str):
@@ -38,13 +42,20 @@ def _persist_token(access_token: str, expiry: datetime | None):
         print('Warning: no se pudo persistir el token en .env')
 
 
-def get_credentials() -> Credentials:
+def log_and_raise_google_error(operation_name: str, exc: Exception) -> None:
+    """Print the detailed error to the console and raise a generic exception for callers."""
+    print(f"[Google API][{operation_name}] ERROR: {type(exc).__name__}: {exc}")
+    raise RuntimeError(f'{operation_name} failed') from exc
+
+
+def get_credentials(scopes=None) -> Credentials:
     """Build Credentials from environment, refresh if needed, and persist updates."""
     access_token = os.getenv('ACCESS_TOKEN')
     refresh_token = os.getenv('REFRESH_TOKEN')
     client_id = os.getenv('CLIENT_ID')
     client_secret = os.getenv('CLIENT_SECRET')
     token_expiry = os.getenv('TOKEN_EXPIRY')
+    scopes = scopes or DEFAULT_SCOPES
 
     if not client_id or not client_secret:
         raise SystemExit('CLIENT_ID y CLIENT_SECRET are required in .env file')
@@ -61,7 +72,7 @@ def get_credentials() -> Credentials:
         client_secret=client_secret,
         token_uri='https://oauth2.googleapis.com/token',
         expiry=expiry,
-        scopes=SCOPES,
+        scopes=scopes,
     )
 
     # Refresh if expired and persist new token values

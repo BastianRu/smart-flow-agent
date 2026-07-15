@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from email.utils import parseaddr
 
-from core.config.google_cloud import get_calendar_service
+from core.config.google_cloud.google_cloud import get_calendar_service, log_and_raise_google_error
 from google.auth.exceptions import RefreshError
 from googleapiclient.errors import HttpError
 
@@ -14,17 +14,20 @@ def is_valid_email(email: str) -> bool:
 
 
 def list_upcoming_events(calendar_id='primary', max_results=10):
-    service = get_calendar_service()
-    now = datetime.utcnow().isoformat() + 'Z'
-    events_result = service.events().list(
-        calendarId=calendar_id,
-        timeMin=now,
-        maxResults=max_results,
-        singleEvents=True,
-        orderBy='startTime',
-    ).execute()
-    events = events_result.get('items', [])
-    return events
+    try:
+        service = get_calendar_service()
+        now = datetime.utcnow().isoformat() + 'Z'
+        events_result = service.events().list(
+            calendarId=calendar_id,
+            timeMin=now,
+            maxResults=max_results,
+            singleEvents=True,
+            orderBy='startTime',
+        ).execute()
+        events = events_result.get('items', [])
+        return events
+    except Exception as exc:
+        log_and_raise_google_error('list_upcoming_events', exc)
 
 
 def create_event(
@@ -55,10 +58,10 @@ def create_event(
             attendees = [attendees]
         invalid_emails = [address for address in attendees if not is_valid_email(address)]
         if invalid_emails:
+            print(f"[Calendar] invalid emails: {invalid_emails}")
             return {
-                'error': 'invalid_email',
-                'invalid_emails': invalid_emails,
-                'message': f"Correo inválido: {', '.join(invalid_emails)}",
+                'error': 'validation_error',
+                'message': 'La app no pudo completar la solicitud.',
             }
         event['attendees'] = [{'email': attendee_email} for attendee_email in attendees]
 
@@ -70,11 +73,14 @@ def create_event(
         ).execute()
         return created_event
     except HttpError as e:
+        print(f"[Calendar] HTTP error: {e}")
         return {
             'error': 'calendar_api_error',
-            'message': str(e),
-            'status_code': getattr(e.resp, 'status', None),
+            'message': 'La app no pudo completar la solicitud.',
         }
     except RefreshError as e:
-        # Normalize error for callers (agent) so they can prompt re-auth
-        raise RuntimeError('Authorization refresh failed; re-authorize the app by running get_tokens.py') from e
+        print(f"[Calendar] Refresh error: {e}")
+        raise RuntimeError('Google Calendar operation failed') from e
+    except Exception as e:
+        print(f"[Calendar] Unexpected error: {e}")
+        raise RuntimeError('Google Calendar operation failed') from e
