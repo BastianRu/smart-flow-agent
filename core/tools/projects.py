@@ -152,7 +152,7 @@ def schedule_appointment( appointment: dict ):
   append_rows("1ZnMWdYbBA3H2ROcg3sYMAIYfuWDDdisxzFBWJcErVy8", "hoja1!A3", rows)
 
   #Send and email to the seller 
-  send_email(appointment['customer_email'], 
+  send_email("juanmunozr@unicauca.edu.co", 
              f'Nueva cita agendada | {appointment["project_name"]} | {appointment["date"]} a las {appointment["hour"]}',
              f"""Se ha solicitado una cita para uno de los proyectos. Informacion del cliente:
              
