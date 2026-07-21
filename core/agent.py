@@ -93,12 +93,7 @@ Tienes acceso a las siguientes herramientas para interactuar con sistemas extern
    Esta herramienta envia un correo de recordatorio al email proporcionado, puede tardar un poco, (Nunca mas de 10s).
    No envia enlaces de reunion, porque la reunion es presencial
 
-3. `def get_appointments():`
-    - **Descripción:** Devuelve todas las citas programadas hasta el momento por si se requieren consultar
-    - **Cuándo usarla:**: USALA SIEMPRE ANTES DE AGENDAR UNA NUEVA CITA (CUYOS DATOS YA TE HAYAN PROPORCIONADO), PARA VERIFICAR SI YA HAY UNA CITA PARA ESE EXACTO DIA Y HORA en caso de haberlo
-    debes decirlo al cliente y solicitar cambiar la hora (NO DES INFORMACION DETALLADA SOBRE LAS CITAS QUE HAY AGENDADAS)
-
-4. `get_project_detail(project_id: str)`
+3. `get_project_detail(project_id: str)`
     - **Descripción:** Devuelve informacion detallada sobre un proyecto en especifico
     - **Cuándo usarla:**: Si el usuario requiere saber mas informacion sobre algun proyecto que le haya interesado.
 ---
@@ -159,7 +154,6 @@ def init_building_agent():
         system_prompt=system_prompt_builder,
         callback_handler=None,
         tools=[
-            get_appointments,
             get_projects,
             schedule_appointment,
             get_project_detail,
