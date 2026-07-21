@@ -1,22 +1,6 @@
-"""Tutorial rápido para usar Google Sheets con Python.
-
-Este módulo muestra las operaciones básicas de lectura y escritura usando la
-Google Sheets API con credenciales OAuth ya configuradas.
-
-Requisitos:
-- Tener configuradas las variables CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN,
-  ACCESS_TOKEN, TOKEN_EXPIRY en .env
-- Tener habilitada la API de Google Sheets en Google Cloud Console
-- Tener el scope:
+"""
+- scope:
     https://www.googleapis.com/auth/spreadsheets
-
-Ejemplo de uso:
-    from core.config.google_cloud.sheets_helpers import (
-        get_sheets_service,
-        read_sheet_values,
-        append_rows,
-        update_range,
-    )
 """
 
 from googleapiclient.discovery import build

@@ -5,7 +5,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-from core.config.google_cloud.google_cloud import DEFAULT_SCOPES
+DEFAULT_SCOPES = [
+    'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/gmail.send',
+    ]
 
 load_dotenv()
 
