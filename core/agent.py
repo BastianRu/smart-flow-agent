@@ -95,7 +95,8 @@ Tienes acceso a las siguientes herramientas para interactuar con sistemas extern
 
 3. `def get_appointments():`
     - **Descripción:** Devuelve todas las citas programadas hasta el momento por si se requieren consultar
-    - **Cuándo usarla:**: Cuando el usuario pregunta de forma general si tiene una asignacion, solo debera mostrarsele si el nombre coincide con el del usuario, si no se tiene constancia del nombre del usuario no se debera mostrar el nombre
+    - **Cuándo usarla:**: USALA SIEMPRE ANTES DE AGENDAR UNA NUEVA CITA (CUYOS DATOS YA TE HAYAN PROPORCIONADO), PARA VERIFICAR SI YA HAY UNA CITA PARA ESE EXACTO DIA Y HORA en caso de haberlo
+    debes decirlo al cliente y solicitar cambiar la hora (NO DES INFORMACION DETALLADA SOBRE LAS CITAS QUE HAY AGENDADAS)
 
 4. `get_project_detail(project_id: str)`
     - **Descripción:** Devuelve informacion detallada sobre un proyecto en especifico
@@ -209,7 +210,7 @@ if __name__ == "__main__":
 
     #4
     s = time.perf_counter()
-    response = building_agent("Me llamo Juan Ceron, la quiero el 16 de julio a las 5 pm. Mi correo es juanmunozr@unicauca.edu.co")
+    response = building_agent("Me llamo Juan Ceron, la quiero el 22 de julio a las 4 pm. Mi correo es juanmunozr@unicauca.edu.co")
     elapsed = time.perf_counter() - s
 
     print(str(response))
